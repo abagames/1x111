@@ -57,6 +57,11 @@ let unlockedGames: string[];
 
 export async function init() {
   await loadGames();
+  initGameState();
+  loadGameState();
+}
+
+export function initGameState() {
   gameSpecs = times(totalGameCount, (i) => {
     if (i >= gameList.length) {
       return {
@@ -81,7 +86,6 @@ export async function init() {
   gameModeIndex = 0;
   starCount = 0;
   unlockedGameCount = initialUnlockedGameCount;
-  loadGameState();
 }
 
 function loadGameState() {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import * as gameManager from "./gameManager";
 import {
@@ -9,6 +9,7 @@ import {
   gameSpecs as initialGameSpecs,
   starCount as initialStarCount,
   unlockedGameCount as initialUnlockedGameCount,
+  initGameState,
 } from "./gameManager";
 
 const GameModes = ["Normal", "Hard", "Expert", "Endless"];
@@ -29,6 +30,8 @@ const GameLauncher = () => {
   const [unlockedGameCount, setUnlockedGameCount] = useState(
     initialUnlockedGameCount
   );
+  const [isResetting, setIsResetting] = useState(false);
+  const [allGamesBanned, setAllGamesBanned] = useState(false);
 
   const currentGameMode = GameModes[gameModeIndex];
 
@@ -57,6 +60,17 @@ const GameLauncher = () => {
       );
     }
   }, [isPlaying]);
+
+  const checkAllGamesBanned = useCallback(() => {
+    const allBanned = gameSpecs.every(
+      (game) => game.state === "banned" || game.state === "closed"
+    );
+    setAllGamesBanned(allBanned);
+  }, [gameSpecs]);
+
+  useEffect(() => {
+    checkAllGamesBanned();
+  }, [gameSpecs, checkAllGamesBanned]);
 
   const handleGameSelect = (game) => {
     setSelectedGame(game);
@@ -143,6 +157,37 @@ const GameLauncher = () => {
         {content}
       </div>
     );
+  };
+
+  const handleReset = () => {
+    setIsResetting(true);
+  };
+
+  const confirmReset = () => {
+    initGameState();
+    setGameSpecs(initialGameSpecs);
+    setSelectedGame(emptyGameSpec);
+    setGameModeIndex(initialGameModeIndex);
+    setStarCount(initialStarCount);
+    setUnlockedGameCount(initialUnlockedGameCount);
+    setIsResetting(false);
+    localStorage.removeItem(localStorageKey);
+  };
+
+  const cancelReset = () => {
+    setIsResetting(false);
+  };
+
+  const toggleAllGames = () => {
+    const newState = allGamesBanned ? "open" : "banned";
+    setGameSpecs((prevSpecs) =>
+      prevSpecs.map((game) =>
+        game.state !== "closed" ? { ...game, state: newState } : game
+      )
+    );
+    if (selectedGame && selectedGame.state !== "closed") {
+      setSelectedGame((prevGame) => ({ ...prevGame, state: newState }));
+    }
   };
 
   if (isPlaying) {
@@ -238,6 +283,28 @@ const GameLauncher = () => {
       </div>
 
       <div className="flex flex-wrap gap-1">{gameSpecs.map(renderGame)}</div>
+
+      <div className="mt-4 flex justify-between items-center">
+        <Button onClick={toggleAllGames} variant="outline" size="sm">
+          {allGamesBanned ? "Open All Games" : "Ban All Games"}
+        </Button>
+        <div className="space-x-2">
+          {!isResetting ? (
+            <Button onClick={handleReset} variant="destructive" size="sm">
+              Reset Game
+            </Button>
+          ) : (
+            <>
+              <Button onClick={confirmReset} variant="destructive" size="sm">
+                Confirm Reset
+              </Button>
+              <Button onClick={cancelReset} variant="outline" size="sm">
+                Cancel
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 
