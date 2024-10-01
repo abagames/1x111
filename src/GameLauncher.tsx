@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import * as gameManager from "./gameManager";
 import {
   GameSpec,
-  GameState,
+  localStorageKey,
+  version,
+  gameModeIndex as initialGameModeIndex,
   gameSpecs as initialGameSpecs,
   starCount as initialStarCount,
   unlockedGameCount as initialUnlockedGameCount,
@@ -14,14 +16,14 @@ const emptyGameSpec: GameSpec = {
   id: -1,
   title: "",
   screenshot: "",
-  state: GameState.CLOSED,
+  state: "closed",
   targetScore: 0,
 };
 
 const GameLauncher = () => {
   const [gameSpecs, setGameSpecs] = useState(initialGameSpecs);
   const [selectedGame, setSelectedGame] = useState<GameSpec>(emptyGameSpec);
-  const [gameModeIndex, setGameModeIndex] = useState(0);
+  const [gameModeIndex, setGameModeIndex] = useState(initialGameModeIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [starCount, setStarCount] = useState(initialStarCount);
   const [unlockedGameCount, setUnlockedGameCount] = useState(
@@ -30,11 +32,17 @@ const GameLauncher = () => {
 
   const currentGameMode = GameModes[gameModeIndex];
 
-  window.addEventListener("keydown", () => {
-    if (!isPlaying) {
-      setIsPlaying(true);
-    }
-  });
+  useEffect(() => {
+    addEventListener("keydown", () => {
+      if (!isPlaying) {
+        setIsPlaying(true);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    saveGameState();
+  }, [gameSpecs, gameModeIndex, starCount, unlockedGameCount]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -74,12 +82,12 @@ const GameLauncher = () => {
 
   const getNextState = (currentState) => {
     switch (currentState) {
-      case GameState.OPEN:
-        return GameState.BANNED;
-      case GameState.BANNED:
-        return GameState.OPEN;
-      case GameState.CLOSED:
-        return GameState.CLOSED;
+      case "open":
+        return "banned";
+      case "banned":
+        return "open";
+      case "closed":
+        return "closed";
     }
   };
 
@@ -96,7 +104,7 @@ const GameLauncher = () => {
   const renderGame = (game) => {
     let content;
     switch (game.state) {
-      case GameState.OPEN:
+      case "open":
         content = (
           <img
             src={game.screenshot}
@@ -105,10 +113,10 @@ const GameLauncher = () => {
           />
         );
         break;
-      case GameState.CLOSED:
+      case "closed":
         content = <div className="w-[50px] h-[50px] bg-gray-400"></div>;
         break;
-      case GameState.BANNED:
+      case "banned":
         content = (
           <div className="relative w-[50px] h-[50px]">
             <img
@@ -198,17 +206,17 @@ const GameLauncher = () => {
               onClick={handlePlay}
               size="sm"
               className="mr-2"
-              disabled={selectedGame.state === GameState.CLOSED}
+              disabled={selectedGame.state === "closed"}
             >
               Play
             </Button>
-            {selectedGame.state !== GameState.CLOSED && (
+            {selectedGame.state !== "closed" && (
               <Button
                 onClick={() => toggleGameState(selectedGame.id)}
                 variant="outline"
                 size="sm"
               >
-                {selectedGame.state === GameState.BANNED ? "Open" : "Ban"}
+                {selectedGame.state === "banned" ? "Open" : "Ban"}
               </Button>
             )}
           </div>
@@ -232,6 +240,24 @@ const GameLauncher = () => {
       <div className="flex flex-wrap gap-1">{gameSpecs.map(renderGame)}</div>
     </div>
   );
+
+  function saveGameState() {
+    try {
+      const data = {
+        version,
+        state: {},
+        gameModeIndex: gameModeIndex,
+        starCount: starCount,
+        unlockedGameCount: unlockedGameCount,
+      };
+      gameSpecs.forEach((gs) => {
+        data.state[gs.id] = gs.state;
+      });
+      localStorage.setItem(localStorageKey, JSON.stringify(data));
+    } catch (error) {
+      console.error("Error saving game state:", error);
+    }
+  }
 };
 
 export default GameLauncher;

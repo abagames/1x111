@@ -10,55 +10,23 @@ import * as view from "./crisp-game-lib/view";
 import { print } from "./crisp-game-lib/letter";
 import { gameList } from "./gameList";
 
-export const GameState = {
-  OPEN: "open",
-  CLOSED: "closed",
-  BANNED: "banned",
-};
-
 export interface GameSpec {
   id: number;
   title: string;
   screenshot: string;
-  state: string;
+  state: "open" | "closed" | "banned";
   targetScore: number;
 }
 
-const initialUnlockedGameCount = 11;
-const totalGameCount = 12; //111;
-const starCharacter = `
-  yy
- yyyy
-yyyyyy
- yyyy
- yyyy
-yy  yy
-`;
-let starChar: string;
+export const localStorageKey = "1x111";
+export const version = "1.0.0";
 
+const initialUnlockedGameCount = 11;
+const totalGameCount = gameList.length;
+export let gameModeIndex: number;
 export let unlockedGameCount: number;
 export let starCount: number;
-export let gameSpecs: GameSpec[] = times(totalGameCount, (i) => {
-  if (i >= gameList.length) {
-    return {
-      id: i + 1,
-      title: `GAME ${i + 1}`,
-      screenshot: "",
-      state: GameState.CLOSED,
-      targetScore: 1,
-    };
-  }
-  const gl = gameList[i];
-  return {
-    id: i + 1,
-    title: gl.title,
-    screenshot: `./screenshots/${gl.title
-      .replace(/\s+/g, "")
-      .toLowerCase()}.png`,
-    state: i < initialUnlockedGameCount ? GameState.OPEN : GameState.CLOSED,
-    targetScore: gl.targetScore,
-  };
-});
+export let gameSpecs: GameSpec[];
 let currentGameSpec: GameSpec;
 
 interface CglGame {
@@ -89,8 +57,52 @@ let unlockedGames: string[];
 
 export async function init() {
   await loadGames();
+  gameSpecs = times(totalGameCount, (i) => {
+    if (i >= gameList.length) {
+      return {
+        id: i + 1,
+        title: `GAME ${i + 1}`,
+        screenshot: "",
+        state: "closed",
+        targetScore: 1,
+      };
+    }
+    const gl = gameList[i];
+    return {
+      id: i + 1,
+      title: gl.title,
+      screenshot: `./screenshots/${gl.title
+        .replace(/\s+/g, "")
+        .toLowerCase()}.png`,
+      state: i < initialUnlockedGameCount ? "open" : "closed",
+      targetScore: gl.targetScore,
+    };
+  });
+  gameModeIndex = 0;
   starCount = 0;
   unlockedGameCount = initialUnlockedGameCount;
+  loadGameState();
+}
+
+function loadGameState() {
+  try {
+    const dataString = localStorage.getItem(localStorageKey);
+    if (dataString == null) {
+      return;
+    }
+    const data = JSON.parse(dataString);
+    if (data.version !== version) {
+      return;
+    }
+    gameSpecs.forEach((gs) => {
+      gs.state = data.state[gs.id] || gs.state;
+    });
+    gameModeIndex = data.gameModeIndex;
+    starCount = data.starCount;
+    unlockedGameCount = data.unlockedGameCount;
+  } catch (error) {
+    console.error("Error loading game state:", error);
+  }
 }
 
 let setGameSpecs;
@@ -166,10 +178,7 @@ function startTimeAttackGame() {
     if (shuffledGameIndex >= totalGameCount) {
       shuffledGameIndex = 0;
     }
-    if (
-      gs.state === GameState.OPEN ||
-      (i >= totalGameCount && gs.state === GameState.BANNED)
-    ) {
+    if (gs.state === "open" || (i >= totalGameCount && gs.state === "banned")) {
       break;
     }
   }
@@ -231,7 +240,7 @@ export function update() {
     nextGameTicks--;
     if (
       nextGameTicks < 0 ||
-      (nextGameTicks < endGameDuration - 60 && input.isJustPressed)
+      (nextGameTicks < endGameDuration - 40 && input.isJustPressed)
     ) {
       terminateCgl();
       setIsPlaying(false);
@@ -294,6 +303,14 @@ function drawMessages() {
           print(`GAME ${currentGameRound}`, (view.size.x - 4 * 5) / 2 + 3, 49, {
             isSmallText: true,
           });
+          print(
+            currentGameSpec.title,
+            (view.size.x - 4 * currentGameSpec.title.length) / 2 + 3,
+            59,
+            {
+              isSmallText: true,
+            }
+          );
         }
         shutterSize -= 2;
       }
@@ -397,12 +414,7 @@ export function setGameFailure() {
 }
 
 function drawTitleAndDescription() {
-  print(
-    currentCglGame.title.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
-    3,
-    3,
-    { isSmallText: true }
-  );
+  print(currentCglGame.title, 3, 3, { isSmallText: true });
   let maxLineLength = 0;
   currentCglGame.description.split("\n").forEach((l) => {
     if (l.length > maxLineLength) {
@@ -461,8 +473,8 @@ function unlockGame() {
   let gs: GameSpec;
   for (let i = 0; i < totalGameCount; i++) {
     gs = gameSpecs[shuffledGames[shuffledGameIndex]];
-    if (gs.state === GameState.CLOSED) {
-      gs.state = GameState.OPEN;
+    if (gs.state === "closed") {
+      gs.state = "open";
       return gs.title;
     }
     shuffledGameIndex++;
@@ -472,6 +484,16 @@ function unlockGame() {
   }
   return undefined;
 }
+
+const starCharacter = `
+  yy
+ yyyy
+yyyyyy
+ yyyy
+ yyyy
+yy  yy
+`;
+let starChar: string;
 
 async function loadGames() {
   const importedGames = import.meta.glob<CglGame>("./games/*.js");
