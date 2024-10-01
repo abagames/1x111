@@ -144,11 +144,11 @@ export function start(
         break;
       case 1:
         initialDifficulty = 1.5;
-        starMultiplier = 2;
+        starMultiplier = 1.2;
         break;
       case 2:
         initialDifficulty = 2;
-        starMultiplier = 3;
+        starMultiplier = 1.5;
         break;
       case 3:
         initialDifficulty = 1;
@@ -454,6 +454,7 @@ export function stop() {
 function endTimeAttackGame() {
   terminateBgm();
   loop.terminateGameUpdate();
+  currentStarCount = Math.floor(currentStarCount);
   starCount += currentStarCount;
   setStarCount(starCount);
   let gc = Math.floor(starCount / starsPerGame) + initialUnlockedGameCount;
