@@ -63,15 +63,6 @@ export async function init() {
 
 export function initGameState() {
   gameSpecs = times(totalGameCount, (i) => {
-    if (i >= gameList.length) {
-      return {
-        id: i + 1,
-        title: `GAME ${i + 1}`,
-        screenshot: "",
-        state: "closed",
-        targetScore: 1,
-      };
-    }
     const gl = gameList[i];
     return {
       id: i + 1,
@@ -109,10 +100,8 @@ function loadGameState() {
   }
 }
 
-let setGameSpecs;
-let setIsPlaying;
-let setStarCount;
-let setUnlockedGameCount;
+let stopPlaying;
+let updateGameSpecs;
 let initialDifficulty: number;
 let starMultiplier: number;
 
@@ -120,16 +109,12 @@ export function start(
   gameModeIndex: number,
   selectedGameSpec: GameSpec,
   _gameSpecs: GameSpec[],
-  _setGameSpecs,
-  _setIsPlaying,
-  _setStarCount,
-  _setUnlockedGameCount
+  _stopPlaying,
+  _updateGameSpecs
 ) {
   gameSpecs = _gameSpecs.map((gs) => ({ ...gs }));
-  setGameSpecs = _setGameSpecs;
-  setIsPlaying = _setIsPlaying;
-  setStarCount = _setStarCount;
-  setUnlockedGameCount = _setUnlockedGameCount;
+  stopPlaying = _stopPlaying;
+  updateGameSpecs = _updateGameSpecs;
   if (selectedGameSpec.id === -1) {
     gameType = "timeAttack";
     currentGameRound = shuffledGameIndex = 0;
@@ -189,7 +174,7 @@ function startTimeAttackGame() {
   const d =
     gameType === "timeAttack"
       ? initialDifficulty
-      : initialDifficulty + Math.sqrt(currentGameRound) * 0.2;
+      : initialDifficulty + Math.sqrt(currentGameRound) * 0.1;
   startGame(gs, d);
   currentGameRound++;
   if (
@@ -247,7 +232,7 @@ export function update() {
       (nextGameTicks < endGameDuration - 40 && input.isJustPressed)
     ) {
       terminateCgl();
-      setIsPlaying(false);
+      stopPlaying();
     }
     return;
   }
@@ -286,7 +271,7 @@ function drawShutter() {
     const sy = (shutterSize * (view.size.y / 2)) / 50;
     color("light_black");
     rect(0, 0, view.size.x, sy);
-    rect(0, view.size.y - sy, view.size.x, sy);
+    rect(0, view.size.y, view.size.x, -sy);
   }
 }
 
@@ -460,16 +445,14 @@ function endTimeAttackGame() {
   loop.terminateGameUpdate();
   currentStarCount = Math.floor(currentStarCount);
   starCount += currentStarCount;
-  setStarCount(starCount);
   let gc = Math.floor(starCount / starsPerGame) + initialUnlockedGameCount;
   let agc = gc - unlockedGameCount;
   unlockedGames = [];
   if (agc > 0) {
     unlockedGames = times(agc, unlockGame).filter((g) => g != null);
     unlockedGameCount += unlockedGames.length;
-    setUnlockedGameCount(unlockedGameCount);
-    setGameSpecs(gameSpecs);
   }
+  updateGameSpecs(gameSpecs, starCount, unlockedGameCount);
   currentGameState = "end";
   nextGameTicks = endGameDuration;
 }

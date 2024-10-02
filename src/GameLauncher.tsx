@@ -12,7 +12,7 @@ import {
   initGameState,
 } from "./gameManager";
 
-const GameModes = ["Normal", "Hard", "Expert", "Endless"];
+const gameModes = ["Normal", "Hard", "Expert", "Endless"];
 const emptyGameSpec: GameSpec = {
   id: -1,
   title: "",
@@ -33,14 +33,18 @@ const GameLauncher = () => {
   const [isResetting, setIsResetting] = useState(false);
   const [allGamesBanned, setAllGamesBanned] = useState(false);
 
-  const currentGameMode = GameModes[gameModeIndex];
+  const currentGameMode = gameModes[gameModeIndex];
 
   useEffect(() => {
-    addEventListener("keydown", () => {
+    function playGame() {
       if (!isPlaying) {
         setIsPlaying(true);
       }
-    });
+    }
+    addEventListener("keydown", playGame);
+    return () => {
+      removeEventListener("keydown", playGame);
+    };
   }, []);
 
   useEffect(() => {
@@ -53,13 +57,21 @@ const GameLauncher = () => {
         gameModeIndex,
         selectedGame,
         gameSpecs,
-        setGameSpecs,
-        setIsPlaying,
-        setStarCount,
-        setUnlockedGameCount
+        stopPlaying,
+        updateGameSpecs
       );
     }
   }, [isPlaying]);
+
+  const stopPlaying = () => {
+    setIsPlaying(false);
+  };
+
+  const updateGameSpecs = (gameSpecs, starCount, unlockedGameCount) => {
+    setGameSpecs(gameSpecs);
+    setStarCount(starCount);
+    setUnlockedGameCount(unlockedGameCount);
+  };
 
   const checkAllGamesBanned = useCallback(() => {
     const allBanned = gameSpecs.every(
@@ -70,7 +82,7 @@ const GameLauncher = () => {
 
   useEffect(() => {
     checkAllGamesBanned();
-  }, [gameSpecs, checkAllGamesBanned]);
+  }, [gameSpecs]);
 
   const handleGameSelect = (game) => {
     setSelectedGame(game);
@@ -108,9 +120,9 @@ const GameLauncher = () => {
   const changeGameMode = (direction) => {
     setGameModeIndex((prevIndex) => {
       if (direction === "next") {
-        return (prevIndex + 1) % GameModes.length;
+        return (prevIndex + 1) % gameModes.length;
       } else {
-        return (prevIndex - 1 + GameModes.length) % GameModes.length;
+        return (prevIndex - 1 + gameModes.length) % gameModes.length;
       }
     });
   };
