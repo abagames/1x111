@@ -624,6 +624,8 @@ function initInGame() {
     replay.initFrameStates();
     isReplaying = false;
   }
+
+  input.clearJustPressed();
 }
 
 function updateInGame() {
