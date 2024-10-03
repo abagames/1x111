@@ -113,7 +113,7 @@ export function update() {
       };
     });
     nextBambooDist = 0;
-    nextBambooFloorIndex = rndi(floors.length);
+    nextBambooFloorIndex = rndi(floors.length - 1);
     nextSkullDist = rnd(49, 99);
     nextPowDist = 999;
     const floorIndex = 5;

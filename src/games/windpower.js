@@ -36,7 +36,7 @@ export function update() {
     };
 
     obstacles = [];
-    nextObstacleTicks = 0;
+    nextObstacleTicks = 9;
 
     windPower = 0;
   }
