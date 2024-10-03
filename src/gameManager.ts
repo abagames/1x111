@@ -443,7 +443,7 @@ export function stop() {
 function endTimeAttackGame() {
   terminateBgm();
   loop.terminateGameUpdate();
-  currentStarCount = Math.floor(currentStarCount);
+  currentStarCount = Math.round(currentStarCount);
   starCount += currentStarCount;
   let gc = Math.floor(starCount / starsPerGame) + initialUnlockedGameCount;
   let agc = gc - unlockedGameCount;
