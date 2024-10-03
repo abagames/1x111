@@ -44,7 +44,7 @@ export const options = {
   viewSize: { x: 200, y: 100 },
   isPlayingBgm: true,
   isReplayEnabled: true,
-  audioSeed: 1,
+  audioSeed: 8,
 };
 
 /** @type {{pos: Vector, vy: number, posHistory: Vector[], isJumping: boolean}} */
