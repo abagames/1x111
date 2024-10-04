@@ -65,7 +65,8 @@ export function update() {
   rect(0, waterY, 150, 3);
   color("black");
   char("a", nodes[0].pos);
-  if (nodesState !== "pull" && waterY < startPos.y - 4) {
+  //if (nodesState !== "pull" && waterY < startPos.y - 4) {
+  if (waterY < startPos.y - 4) {
     play("explosion");
     end();
   }
