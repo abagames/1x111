@@ -311,7 +311,7 @@ const GameLauncher = () => {
                 Confirm Reset
               </Button>
               <Button onClick={cancelReset} variant="outline" size="sm">
-                Cancel
+                Cancel Reset
               </Button>
             </>
           )}
