@@ -46,8 +46,8 @@ export function update() {
   if (!ticks) {
     // Initialize the game state
     ember = {
-      pos: vec(20, 20),
-      velocity: vec(0, 0),
+      pos: vec(20, 50),
+      velocity: vec(0, -3),
       energy: initialEnergy,
       baseEnergy: initialEnergy,
     };
