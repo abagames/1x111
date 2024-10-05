@@ -211,6 +211,7 @@ export function init(_options?: Options) {
     ])
   );
   isPressed = isJustPressed = isJustReleased = false;
+  isKeyPressing = isKeyPressed = isKeyReleased = false;
   document.addEventListener("keydown", handleKeydown);
   document.addEventListener("keyup", handleKeyup);
 }

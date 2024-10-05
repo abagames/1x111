@@ -82,6 +82,7 @@ export function init(
     );
   }
   isPressed = isJustPressed = isJustReleased = false;
+  isDown = isClicked = isReleased = false;
   document.addEventListener("mousedown", handleMousedown);
   document.addEventListener("touchstart", handleTouchstart);
   document.addEventListener("mousemove", handleMousemove);
