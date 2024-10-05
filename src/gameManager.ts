@@ -21,7 +21,7 @@ export interface GameSpec {
 export const localStorageKey = "1x111";
 export const version = "1.0.0";
 
-const initialUnlockedGameCount = 11;
+const initialUnlockedGameCount = 1; //11;
 const totalGameCount = gameList.length;
 export let gameModeIndex: number;
 export let unlockedGameCount: number;
@@ -104,6 +104,7 @@ let stopPlaying;
 let updateGameSpecs;
 let initialDifficulty: number;
 let starMultiplier: number;
+let isPlaying = false;
 
 export function start(
   gameModeIndex: number,
@@ -112,6 +113,10 @@ export function start(
   _stopPlaying,
   _updateGameSpecs
 ) {
+  if (isPlaying) {
+    return;
+  }
+  isPlaying = true;
   gameSpecs = _gameSpecs.map((gs) => ({ ...gs }));
   stopPlaying = _stopPlaying;
   updateGameSpecs = _updateGameSpecs;
@@ -150,6 +155,14 @@ export function start(
   }
   gameType = "single";
   startGame(selectedGameSpec, 1);
+}
+
+export function stop() {
+  if (!isPlaying) {
+    return;
+  }
+  isPlaying = false;
+  terminateCgl();
 }
 
 function startTimeAttackGame() {
@@ -434,10 +447,6 @@ function drawScoreAndTime() {
   const tw = ceil((100 * gameTime) / (gameTimeLimit * 60));
   rect(100 - tw, 24, tw, 6);
   print(`${Math.floor(gameTime / 60)}`, 3, 27, { isSmallText: true });
-}
-
-export function stop() {
-  terminateCgl();
 }
 
 function endTimeAttackGame() {

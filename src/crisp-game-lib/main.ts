@@ -467,6 +467,8 @@ export function init(settings: {
 
 export function terminate() {
   terminateBgm();
+  pointer.terminate();
+  keyboard.terminate();
   loop.terminate();
 }
 

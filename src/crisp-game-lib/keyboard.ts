@@ -146,7 +146,7 @@ export const codes = [
   "BrowserForward",
   "BrowserBack",
 ];
-export type Code = typeof codes[number];
+export type Code = (typeof codes)[number];
 
 export type CodeState = {
   [key in Code]: {
@@ -173,6 +173,31 @@ let pressingCode: { [key: string]: boolean } = {};
 let pressedCode: { [key: string]: boolean } = {};
 let releasedCode: { [key: string]: boolean } = {};
 
+const handleKeydown = (e: KeyboardEvent) => {
+  isKeyPressing = isKeyPressed = true;
+  pressingCode[e.code] = pressedCode[e.code] = true;
+  if (options.onKeyDown != null) {
+    options.onKeyDown();
+  }
+  if (
+    e.code === "AltLeft" ||
+    e.code === "AltRight" ||
+    e.code === "ArrowRight" ||
+    e.code === "ArrowDown" ||
+    e.code === "ArrowLeft" ||
+    e.code === "ArrowUp"
+  ) {
+    e.preventDefault();
+  }
+};
+
+const handleKeyup = (e: KeyboardEvent) => {
+  isKeyPressing = false;
+  isKeyReleased = true;
+  pressingCode[e.code] = false;
+  releasedCode[e.code] = true;
+};
+
 export function init(_options?: Options) {
   options = { ...defaultOptions, ..._options };
   code = fromEntities(
@@ -185,29 +210,13 @@ export function init(_options?: Options) {
       },
     ])
   );
-  document.addEventListener("keydown", (e) => {
-    isKeyPressing = isKeyPressed = true;
-    pressingCode[e.code] = pressedCode[e.code] = true;
-    if (options.onKeyDown != null) {
-      options.onKeyDown();
-    }
-    if (
-      e.code === "AltLeft" ||
-      e.code === "AltRight" ||
-      e.code === "ArrowRight" ||
-      e.code === "ArrowDown" ||
-      e.code === "ArrowLeft" ||
-      e.code === "ArrowUp"
-    ) {
-      e.preventDefault();
-    }
-  });
-  document.addEventListener("keyup", (e) => {
-    isKeyPressing = false;
-    isKeyReleased = true;
-    pressingCode[e.code] = false;
-    releasedCode[e.code] = true;
-  });
+  document.addEventListener("keydown", handleKeydown);
+  document.addEventListener("keyup", handleKeyup);
+}
+
+export function terminate() {
+  document.removeEventListener("keydown", handleKeydown);
+  document.removeEventListener("keyup", handleKeyup);
 }
 
 export function update() {

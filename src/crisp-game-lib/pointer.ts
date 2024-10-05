@@ -33,6 +33,33 @@ let isDown = false;
 let isClicked = false;
 let isReleased = false;
 
+const handleMousedown = (e: MouseEvent) => {
+  onDown(e.pageX, e.pageY);
+};
+
+const handleTouchstart = (e: TouchEvent) => {
+  onDown(e.touches[0].pageX, e.touches[0].pageY);
+};
+
+const handleMousemove = (e: MouseEvent) => {
+  onMove(e.pageX, e.pageY);
+};
+
+const handleTouchmove = (e: TouchEvent) => {
+  e.preventDefault();
+  onMove(e.touches[0].pageX, e.touches[0].pageY);
+};
+
+const handleMouseup = (e: MouseEvent) => {
+  onUp(e);
+};
+
+const handleTouchend = (e: TouchEvent) => {
+  e.preventDefault();
+  (e.target as any).click();
+  onUp(e);
+};
+
 export function init(
   _screen: HTMLElement,
   _pixelSize: Vector,
@@ -54,35 +81,21 @@ export function init(
       screen.offsetTop + screen.clientWidth * (0.5 - options.anchor.y)
     );
   }
-  document.addEventListener("mousedown", (e) => {
-    onDown(e.pageX, e.pageY);
-  });
-  document.addEventListener("touchstart", (e) => {
-    onDown(e.touches[0].pageX, e.touches[0].pageY);
-  });
-  document.addEventListener("mousemove", (e) => {
-    onMove(e.pageX, e.pageY);
-  });
-  document.addEventListener(
-    "touchmove",
-    (e) => {
-      e.preventDefault();
-      onMove(e.touches[0].pageX, e.touches[0].pageY);
-    },
-    { passive: false }
-  );
-  document.addEventListener("mouseup", (e) => {
-    onUp(e);
-  });
-  document.addEventListener(
-    "touchend",
-    (e) => {
-      e.preventDefault();
-      (e.target as any).click();
-      onUp(e);
-    },
-    { passive: false }
-  );
+  document.addEventListener("mousedown", handleMousedown);
+  document.addEventListener("touchstart", handleTouchstart);
+  document.addEventListener("mousemove", handleMousemove);
+  document.addEventListener("touchmove", handleTouchmove, { passive: false });
+  document.addEventListener("mouseup", handleMouseup);
+  document.addEventListener("touchend", handleTouchend, { passive: false });
+}
+
+export function terminate() {
+  document.removeEventListener("mousedown", handleMousedown);
+  document.removeEventListener("touchstart", handleTouchstart);
+  document.removeEventListener("mousemove", handleMousemove);
+  document.removeEventListener("touchmove", handleTouchmove);
+  document.removeEventListener("mouseup", handleMouseup);
+  document.removeEventListener("touchend", handleTouchend);
 }
 
 export function update() {

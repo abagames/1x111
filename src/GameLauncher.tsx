@@ -20,6 +20,7 @@ const emptyGameSpec: GameSpec = {
   state: "closed",
   targetScore: 0,
 };
+let cancelCount = 0;
 
 const GameLauncher = () => {
   const [gameSpecs, setGameSpecs] = useState(initialGameSpecs);
@@ -36,16 +37,48 @@ const GameLauncher = () => {
   const currentGameMode = gameModes[gameModeIndex];
 
   useEffect(() => {
-    function playGame() {
-      if (!isPlaying) {
-        setIsPlaying(true);
+    const startGame = (e: KeyboardEvent) => {
+      if (
+        !(
+          e.key.startsWith("Arrow") ||
+          e.key === "PageUp" ||
+          e.key === "PageDown" ||
+          e.key === "Home" ||
+          e.key === "End" ||
+          e.key === "Tab" ||
+          e.key === "Escape" ||
+          e.ctrlKey ||
+          e.altKey
+        )
+      ) {
+        startPlaying();
       }
-    }
-    addEventListener("keydown", playGame);
-    return () => {
-      removeEventListener("keydown", playGame);
     };
-  }, []);
+    if (
+      !isPlaying &&
+      (selectedGame.id === -1 || selectedGame.state !== "closed")
+    ) {
+      addEventListener("keydown", startGame);
+    }
+    return () => {
+      removeEventListener("keydown", startGame);
+    };
+  }, [isPlaying, selectedGame]);
+
+  useEffect(() => {
+    const escapeFromGame = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        stopPlaying();
+      }
+    };
+    if (isPlaying) {
+      addEventListener("keydown", escapeFromGame);
+    }
+    return () => {
+      removeEventListener("keydown", escapeFromGame);
+    };
+  }, [isPlaying]);
 
   useEffect(() => {
     saveGameState();
@@ -53,6 +86,7 @@ const GameLauncher = () => {
 
   useEffect(() => {
     if (isPlaying) {
+      cancelCount = 0;
       gameManager.start(
         gameModeIndex,
         selectedGame,
@@ -60,8 +94,14 @@ const GameLauncher = () => {
         stopPlaying,
         updateGameSpecs
       );
+    } else {
+      gameManager.stop();
     }
   }, [isPlaying]);
+
+  const startPlaying = () => {
+    setIsPlaying(true);
+  };
 
   const stopPlaying = () => {
     setIsPlaying(false);
@@ -85,11 +125,8 @@ const GameLauncher = () => {
   }, [gameSpecs]);
 
   const handleGameSelect = (game) => {
+    cancelCount = 0;
     setSelectedGame(game);
-  };
-
-  const handlePlay = () => {
-    setIsPlaying(true);
   };
 
   const toggleGameState = (gameId) => {
@@ -176,6 +213,7 @@ const GameLauncher = () => {
   };
 
   const confirmReset = () => {
+    cancelCount = 0;
     initGameState();
     setGameSpecs(initialGameSpecs);
     setSelectedGame(emptyGameSpec);
@@ -188,6 +226,18 @@ const GameLauncher = () => {
 
   const cancelReset = () => {
     setIsResetting(false);
+    cancelCount++;
+    if (cancelCount === 5) {
+      const gs = gameSpecs.map((g) => {
+        if (g.state === "closed") {
+          return { ...g, state: "open" as const };
+        } else {
+          return { ...g };
+        }
+      });
+      setUnlockedGameCount(gameSpecs.length);
+      setGameSpecs(gs);
+    }
   };
 
   const toggleAllGames = () => {
@@ -208,8 +258,7 @@ const GameLauncher = () => {
         <Button
           className="absolute top-4 right-4"
           onClick={() => {
-            gameManager.stop();
-            setIsPlaying(false);
+            stopPlaying();
           }}
         >
           Exit Game
@@ -224,7 +273,7 @@ const GameLauncher = () => {
         <Button
           onClick={() => {
             setSelectedGame(emptyGameSpec);
-            handlePlay();
+            startPlaying();
           }}
           variant="outline"
           size="sm"
@@ -256,11 +305,13 @@ const GameLauncher = () => {
         <div className="mb-4 p-4 border rounded flex items-center space-x-4">
           {renderGame(selectedGame)}
           <div>
-            <p className="text-sm font-bold">{selectedGame.title}</p>
+            <p className="text-sm font-bold">
+              {selectedGame.state === "closed" ? "???" : selectedGame.title}
+            </p>
           </div>
           <div>
             <Button
-              onClick={handlePlay}
+              onClick={startPlaying}
               size="sm"
               className="mr-2"
               disabled={selectedGame.state === "closed"}
