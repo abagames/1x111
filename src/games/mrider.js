@@ -53,7 +53,7 @@ let multiplier;
 
 export function update() {
   if (!ticks) {
-    missiles = [{ pos: vec(30, 60), vel: vec(1, -2) }];
+    missiles = [{ pos: vec(30, 60), vel: vec(1, -1.5) }];
     nextMissileTicks = 9;
     planes = [];
     nextPlaneTicks = 0;
