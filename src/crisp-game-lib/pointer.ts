@@ -81,6 +81,7 @@ export function init(
       screen.offsetTop + screen.clientWidth * (0.5 - options.anchor.y)
     );
   }
+  isPressed = isJustPressed = isJustReleased = false;
   document.addEventListener("mousedown", handleMousedown);
   document.addEventListener("touchstart", handleTouchstart);
   document.addEventListener("mousemove", handleMousemove);
