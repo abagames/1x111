@@ -56,7 +56,7 @@ const GameLauncher = () => {
     };
     if (
       !isPlaying &&
-      (selectedGame.id === -1 || selectedGame.state !== "closed")
+      (selectedGame.id === emptyGameSpec.id || selectedGame.state !== "closed")
     ) {
       addEventListener("keydown", startGame);
     }
@@ -126,7 +126,7 @@ const GameLauncher = () => {
 
   const handleGameSelect = (game) => {
     cancelCount = 0;
-    setSelectedGame(game);
+    setSelectedGame(selectedGame.id === game.id ? emptyGameSpec : game);
   };
 
   const toggleGameState = (gameId) => {
@@ -330,7 +330,7 @@ const GameLauncher = () => {
           </div>
         </div>
       )}
-      {selectedGame.id === -1 && (
+      {selectedGame.id === emptyGameSpec.id && (
         <div className="mb-4 p-4 border rounded flex items-center space-x-4">
           {renderGame(selectedGame)}
         </div>
