@@ -244,7 +244,6 @@ export function update() {
       nextGameTicks < 0 ||
       (nextGameTicks < endGameDuration - 40 && input.isJustPressed)
     ) {
-      terminateCgl();
       stopPlaying();
     }
     return;
