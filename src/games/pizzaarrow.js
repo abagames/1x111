@@ -35,7 +35,7 @@ export function update() {
   if (!ticks) {
     pizza = undefined;
     arrow = undefined;
-    arrowCount = nextArrowCount = 1 + (difficulty - 1) * 2;
+    arrowCount = nextArrowCount = floor(1 + (difficulty - 1) * 2);
     nextPizzaTicks = 16;
     gameSpeed = 1;
     multiplier = 1;

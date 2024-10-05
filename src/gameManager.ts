@@ -21,7 +21,7 @@ export interface GameSpec {
 export const localStorageKey = "1x111";
 export const version = "1.0.0";
 
-const initialUnlockedGameCount = 1; //11;
+const initialUnlockedGameCount = 11;
 const totalGameCount = gameList.length;
 export let gameModeIndex: number;
 export let unlockedGameCount: number;
