@@ -1,6 +1,6 @@
 export const gameList: { title: string; targetScore: number }[] = [
   { title: "THUNDER", targetScore: 36 },
-  { title: "PIN CLIMB", targetScore: 150 },
+  { title: "PIN CLIMB", targetScore: 140 },
   { title: "LLAND", targetScore: 3 },
   { title: "IN TOW", targetScore: 10 },
   { title: "BALL TOUR", targetScore: 9 },
@@ -8,7 +8,7 @@ export const gameList: { title: string; targetScore: number }[] = [
   { title: "UP 1 WAY", targetScore: 2 },
   { title: "BOX SNAKE", targetScore: 50 },
   { title: "UP SHOT", targetScore: 100 },
-  { title: "GRAPPLING H", targetScore: 25 },
+  { title: "GRAPPLING H", targetScore: 20 },
   { title: "CYWALL", targetScore: 150 },
   { title: "PAKU PAKU", targetScore: 60 },
   { title: "STOMPING BUBBLES", targetScore: 250 },
@@ -108,6 +108,6 @@ export const gameList: { title: string; targetScore: number }[] = [
   { title: "EAROCK", targetScore: 1 },
   { title: "TAPPUMP", targetScore: 300 },
   { title: "SNAKE 1", targetScore: 2 },
-  { title: "FLOORS 5", targetScore: 500 },
+  { title: "FLOORS 5", targetScore: 400 },
   { title: "LIFT UP", targetScore: 15 },
 ];
