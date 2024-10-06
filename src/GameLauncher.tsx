@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import * as gameManager from "./gameManager";
 import {
@@ -33,8 +33,27 @@ const GameLauncher = () => {
   );
   const [isResetting, setIsResetting] = useState(false);
   const [allGamesBanned, setAllGamesBanned] = useState(false);
+  const [windowDimensions, setWindowDimensions] = useState({
+    width: 0,
+    height: 0,
+  });
+  const gameContainerRef = useRef<HTMLDivElement>(null);
 
   const currentGameMode = gameModes[gameModeIndex];
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const startGame = (e: KeyboardEvent) => {
@@ -99,19 +118,35 @@ const GameLauncher = () => {
     }
   }, [isPlaying]);
 
+  useEffect(() => {
+    if (gameContainerRef.current) {
+      gameContainerRef.current.style.display = "none";
+      void gameContainerRef.current.offsetHeight;
+      gameContainerRef.current.style.display = "";
+    }
+  }, [isPlaying, windowDimensions]);
+
   const startPlaying = () => {
     setIsPlaying(true);
   };
 
-  const stopPlaying = () => {
+  const stopPlaying = useCallback(() => {
     setIsPlaying(false);
-  };
+    if (gameContainerRef.current) {
+      gameContainerRef.current.style.display = "none";
+      void gameContainerRef.current.offsetHeight;
+      gameContainerRef.current.style.display = "";
+    }
+  }, []);
 
-  const updateGameSpecs = (gameSpecs, starCount, unlockedGameCount) => {
-    setGameSpecs(gameSpecs);
-    setStarCount(starCount);
-    setUnlockedGameCount(unlockedGameCount);
-  };
+  const updateGameSpecs = useCallback(
+    (gameSpecs, starCount, unlockedGameCount) => {
+      setGameSpecs(gameSpecs);
+      setStarCount(starCount);
+      setUnlockedGameCount(unlockedGameCount);
+    },
+    []
+  );
 
   const checkAllGamesBanned = useCallback(() => {
     const allBanned = gameSpecs.every(
@@ -122,26 +157,27 @@ const GameLauncher = () => {
 
   useEffect(() => {
     checkAllGamesBanned();
-  }, [gameSpecs]);
+  }, [gameSpecs, checkAllGamesBanned]);
 
-  const handleGameSelect = (game) => {
+  const handleGameSelect = useCallback((game) => {
     cancelCount = 0;
-    setSelectedGame(selectedGame.id === game.id ? emptyGameSpec : game);
-  };
+    setSelectedGame((prevSelectedGame) =>
+      prevSelectedGame.id === game.id ? emptyGameSpec : game
+    );
+  }, []);
 
-  const toggleGameState = (gameId) => {
+  const toggleGameState = useCallback((gameId) => {
     setGameSpecs((prevState) =>
       prevState.map((game) =>
         game.id === gameId ? { ...game, state: getNextState(game.state) } : game
       )
     );
-    if (selectedGame && selectedGame.id === gameId) {
-      setSelectedGame((prevGame) => ({
-        ...prevGame,
-        state: getNextState(prevGame.state),
-      }));
-    }
-  };
+    setSelectedGame((prevGame) =>
+      prevGame && prevGame.id === gameId
+        ? { ...prevGame, state: getNextState(prevGame.state) }
+        : prevGame
+    );
+  }, []);
 
   const getNextState = (currentState) => {
     switch (currentState) {
@@ -154,7 +190,7 @@ const GameLauncher = () => {
     }
   };
 
-  const changeGameMode = (direction) => {
+  const changeGameMode = useCallback((direction) => {
     setGameModeIndex((prevIndex) => {
       if (direction === "next") {
         return (prevIndex + 1) % gameModes.length;
@@ -162,57 +198,62 @@ const GameLauncher = () => {
         return (prevIndex - 1 + gameModes.length) % gameModes.length;
       }
     });
-  };
+  }, []);
 
-  const renderGame = (game) => {
-    let content;
-    switch (game.state) {
-      case "open":
-        content = (
-          <img
-            src={game.screenshot}
-            alt={game.title}
-            className="w-[50px] h-[50px]"
-          />
-        );
-        break;
-      case "closed":
-        content = <div className="w-[50px] h-[50px] bg-gray-400"></div>;
-        break;
-      case "banned":
-        content = (
-          <div className="relative w-[50px] h-[50px]">
+  const renderGame = useCallback(
+    (game) => {
+      let content;
+      switch (game.state) {
+        case "open":
+          content = (
             <img
               src={game.screenshot}
               alt={game.title}
-              className="w-full h-full"
+              className="w-[50px] h-[50px] object-cover"
+              loading="lazy"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-red-600 text-4xl font-bold">X</span>
+          );
+          break;
+        case "closed":
+          content = <div className="w-[50px] h-[50px] bg-gray-400"></div>;
+          break;
+        case "banned":
+          content = (
+            <div className="relative w-[50px] h-[50px]">
+              <img
+                src={game.screenshot}
+                alt={game.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-red-600 text-4xl font-bold">X</span>
+              </div>
             </div>
-          </div>
-        );
-        break;
-      default:
-        content = null;
-    }
+          );
+          break;
+        default:
+          content = null;
+      }
 
-    return (
-      <div
-        key={game.id}
-        className="w-[50px] h-[50px] cursor-pointer hover:shadow-lg transition-shadow"
-        onClick={() => handleGameSelect(game)}
-      >
-        {content}
-      </div>
-    );
-  };
+      return (
+        <div
+          key={game.id}
+          className="w-[50px] h-[50px] cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => handleGameSelect(game)}
+        >
+          {content}
+        </div>
+      );
+    },
+    [handleGameSelect]
+  );
 
   const handleReset = () => {
     setIsResetting(true);
   };
 
-  const confirmReset = () => {
+  const confirmReset = useCallback(() => {
     cancelCount = 0;
     initGameState();
     setGameSpecs(initialGameSpecs);
@@ -222,45 +263,39 @@ const GameLauncher = () => {
     setUnlockedGameCount(initialUnlockedGameCount);
     setIsResetting(false);
     localStorage.removeItem(localStorageKey);
-  };
+  }, []);
 
-  const cancelReset = () => {
+  const cancelReset = useCallback(() => {
     setIsResetting(false);
     cancelCount++;
     if (cancelCount === 5) {
-      const gs = gameSpecs.map((g) => {
-        if (g.state === "closed") {
-          return { ...g, state: "open" as const };
-        } else {
-          return { ...g };
-        }
-      });
-      setUnlockedGameCount(gameSpecs.length);
-      setGameSpecs(gs);
+      setGameSpecs((prevSpecs) =>
+        prevSpecs.map((g) =>
+          g.state === "closed" ? { ...g, state: "open" as const } : g
+        )
+      );
+      setUnlockedGameCount((prevCount) => gameSpecs.length);
     }
-  };
+  }, [gameSpecs.length]);
 
-  const toggleAllGames = () => {
+  const toggleAllGames = useCallback(() => {
     const newState = allGamesBanned ? "open" : "banned";
     setGameSpecs((prevSpecs) =>
       prevSpecs.map((game) =>
         game.state !== "closed" ? { ...game, state: newState } : game
       )
     );
-    if (selectedGame && selectedGame.state !== "closed") {
-      setSelectedGame((prevGame) => ({ ...prevGame, state: newState }));
-    }
-  };
+    setSelectedGame((prevGame) =>
+      prevGame && prevGame.state !== "closed"
+        ? { ...prevGame, state: newState }
+        : prevGame
+    );
+  }, [allGamesBanned]);
 
   if (isPlaying) {
     return (
       <div className="fixed inset-0 z-50">
-        <Button
-          className="absolute top-4 right-4"
-          onClick={() => {
-            stopPlaying();
-          }}
-        >
+        <Button className="absolute top-4 right-4" onClick={stopPlaying}>
           Exit Game
         </Button>
       </div>
@@ -268,7 +303,7 @@ const GameLauncher = () => {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4" ref={gameContainerRef}>
       <div className="bg-gray-800 p-4 mb-4 flex justify-between items-center">
         <Button
           onClick={() => {
