@@ -4,4 +4,4 @@
 
 You can easily play it [on your PC or smartphone browser](https://abagames.github.io/1x111/build/index.html).
 
-![screenshot](./docs/1x111.gif)
+<a href="https://abagames.github.io/1x111/build/index.html"><img src="./docs/1x111.gif" width="300px"></a>
