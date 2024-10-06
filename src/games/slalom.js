@@ -83,6 +83,9 @@ export function update() {
     particle(pos, 1, vel.length, angle + PI, 0.2);
   }
   vel.mul(1 - 0.02 / difficulty).add(vec(0.03).rotate(angle));
+  if (ticks < 60) {
+    vel.mul(ticks / 60);
+  }
   pos.add(vel);
   scrolling = 0;
   if (pos.y < 88) {

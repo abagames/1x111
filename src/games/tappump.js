@@ -42,7 +42,7 @@ let nextCoinDist;
 
 export function update() {
   if (!ticks) {
-    player = { pos: vec(10, 50), vel: vec(0, -3), radius: 1, rv: 0 };
+    player = { pos: vec(10, 50), vel: vec(0, -2), radius: 1, rv: 0 };
     spikes = [];
     coins = [];
     coinY = 50;
@@ -76,6 +76,9 @@ export function update() {
   } else {
     player.radius += (1 - player.radius) * 0.04 * difficulty;
     player.rv = 0;
+  }
+  if (ticks < 60) {
+    player.vel.mul(ticks / 60);
   }
   player.pos.add(player.vel);
   player.pos.x -= scr;

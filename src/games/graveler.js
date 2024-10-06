@@ -116,6 +116,9 @@ export function update() {
     nextWallDist += 10;
   }
   color("black");
+  if (ticks < 60) {
+    svy *= ticks / 60;
+  }
   sy += svy;
   svy *= 0.99;
   if (char("a", sx, sy).isColliding.rect.blue) {

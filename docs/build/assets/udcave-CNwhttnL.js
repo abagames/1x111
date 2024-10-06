@@ -1,8 +1,0 @@
-const g="UD CAVE",D=`
-[Hold] Go right
-`,E=[`
- l
-lll
- l
-l l
-`],W={theme:"dark",isPlayingBgm:!0,isReplayEnabled:!0,audioSeed:30};let n,r,i,o,v,p,f;const l=10;function X(){ticks||(n=20,r=[],i=-50,o=times(3,t=>({x:0,vx:0,w:t>0?15:20,vw:0})),v=[],p=5,f=1);const y=sqrt(difficulty);if(i-=y,i<0){addScore(f);const t=o[0];o.forEach((s,d)=>{s.vx+=rnds(2)*sqrt(difficulty),s.vw+=rnds(1)*sqrt(difficulty),s.x+=s.vx,s.w+=s.vw;const q=d===0?-(17-7/sqrt(difficulty)):t.x-t.w,k=d===0?17-7/sqrt(difficulty):t.x+t.w;(s.x-s.w<q&&s.vx<0||s.x+s.w>k&&s.vx>0)&&(s.vx*=-.5,s.x+=s.vx);const C=d===0?5+5/sqrt(difficulty):o[0].w,b=d===0?7+7/sqrt(difficulty):9+9/sqrt(difficulty);(s.w<C&&s.vw<0||s.w>b&&s.vw>0)&&(s.vw*=-.5,s.w+=s.vw)});const e=o[1],x=e.x-e.w+25,a=e.x+e.w+25;x>0&&r.push({pos:vec(x,-i),width:-x,vy:1}),a<50&&r.push({pos:vec(a,-i),width:50-a,vy:1});const c=o[2],u=75-c.x-c.w,w=75-c.x+c.w;u>50&&r.push({pos:vec(u,100+i),width:50-u,vy:-1}),w<100&&r.push({pos:vec(w,100+i),width:100-w,vy:-1}),p--,p<0&&(rnd()<.5?v.push({pos:vec(o[1].x+rnds(o[1].w*.8)+25,-i-l/2),vy:1}):v.push({pos:vec(75-o[2].x+rnds(o[2].w*.8),100+i+l/2),vy:-1}),p=rnd(3,9)),i+=l}color("red"),remove(r,t=>(t.pos.y+=t.vy*y,rect(t.pos,t.width,(l-1)*-t.vy),t.vy>0?t.pos.y>100+l:t.pos.y<-l)),n=clamp(n+(input.isPressed?1:-1)*sqrt(difficulty)*.5,-25,25),color("black");const h=char("a",n+25,90).isColliding.rect,m=char("a",75-n,10).isColliding.rect;(h.red||m.red)&&(play("explosion"),end()),color("yellow"),remove(v,t=>{t.pos.y+=t.vy*y;const e=char("$",t.pos).isColliding;return e.rect.red?!0:e.char.a?(play("powerUp"),f++,!0):t.vy>0?t.pos.y>103:t.pos.y<-3}),color("black"),text(`x${f}`,3,9)}export{E as characters,D as description,W as options,g as title,X as update};

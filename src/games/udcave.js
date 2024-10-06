@@ -34,7 +34,7 @@ const wallHeight = 10;
 
 export function update() {
   if (!ticks) {
-    playerX = 20;
+    playerX = 15;
     walls = [];
     nextWallDist = -50;
     caves = times(3, (i) => {
@@ -123,8 +123,9 @@ export function update() {
     rect(w.pos, w.width, (wallHeight - 1) * -w.vy);
     return w.vy > 0 ? w.pos.y > 100 + wallHeight : w.pos.y < -wallHeight;
   });
+  const xr = ticks < 60 ? ticks / 60 : 1;
   playerX = clamp(
-    playerX + (input.isPressed ? 1 : -1) * sqrt(difficulty) * 0.5,
+    playerX + (input.isPressed ? 1 : -1) * sqrt(difficulty) * 0.5 * xr,
     -25,
     25
   );
