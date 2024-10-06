@@ -16,7 +16,7 @@ export const gameList: { title: string; targetScore: number }[] = [
   { title: "VINE CLIMBER", targetScore: 2 },
   { title: "SUNFLOWER SWAY", targetScore: 100 },
   { title: "ROTATION ROD", targetScore: 150 },
-  { title: "STAGE SEPARATION", targetScore: 120 },
+  { title: "STAGE SEPARATION", targetScore: 100 },
   { title: "CATCHING WHEEL", targetScore: 20 },
   { title: "SLIME STRETCHER", targetScore: 22 },
   { title: "JUGGLING ACT", targetScore: 7 },

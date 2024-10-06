@@ -82,7 +82,7 @@ let multiplier;
 
 export function update() {
   if (!ticks) {
-    player = { x: 25, vx: 1 };
+    player = { x: 10, vx: 1 };
     enemy = { x: 100, eyeVx: 0 };
     multiplier = 0;
     addDots();
