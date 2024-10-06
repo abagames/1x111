@@ -8,7 +8,7 @@ export const characters = [];
 
 export const options = {
   theme: "pixel",
-  viewSize: { x: 200, y: 70 },
+  viewSize: { x: 200, y: 100 },
   isPlayingBgm: true,
   isReplayEnabled: true,
   audioSeed: 1,
