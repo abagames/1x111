@@ -42,7 +42,7 @@ let nextCoinDist;
 
 export function update() {
   if (!ticks) {
-    player = { pos: vec(10, 20), vel: vec(), radius: 1, rv: 0 };
+    player = { pos: vec(10, 50), vel: vec(0, -3), radius: 1, rv: 0 };
     spikes = [];
     coins = [];
     coinY = 50;
