@@ -58,7 +58,7 @@ export function update() {
     landForm = "sea";
     nextLandFormDist = 50;
     lvy = 0;
-    sub = { pos: vec(5, 55), vel: vec() };
+    sub = { pos: vec(5, 55), vel: vec(0, -1) };
     coins = [];
     nextCoinDist = 0;
     multiplier = 1;
