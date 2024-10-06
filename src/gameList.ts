@@ -108,6 +108,6 @@ export const gameList: { title: string; targetScore: number }[] = [
   { title: "EAROCK", targetScore: 1 },
   { title: "TAPPUMP", targetScore: 300 },
   { title: "SNAKE 1", targetScore: 2 },
-  { title: "FLOORS 5", targetScore: 400 },
+  { title: "FLOORS 5", targetScore: 300 },
   { title: "LIFT UP", targetScore: 15 },
 ];
