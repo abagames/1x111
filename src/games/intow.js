@@ -67,8 +67,8 @@ export function update() {
     chicks = [];
     fallingChicks = [];
     floors = [
-      { pos: vec(70, 70), width: 90, hasChick: false },
-      { pos: vec(150, 50), width: 90, hasChick: true },
+      { pos: vec(90, 70), width: 90, hasChick: false },
+      { pos: vec(170, 50), width: 90, hasChick: true },
     ];
     nextFloorDist = 0;
     bullets = [];

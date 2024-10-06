@@ -16,6 +16,7 @@ let player;
 let playerWindmill;
 let windmill;
 let obstacles;
+let isFirstObstacle;
 let nextObstacleTicks;
 let windPower;
 
@@ -37,6 +38,7 @@ export function update() {
 
     obstacles = [];
     nextObstacleTicks = 9;
+    isFirstObstacle = true;
 
     windPower = 0;
   }
@@ -80,9 +82,10 @@ export function update() {
   if (nextObstacleTicks < 0) {
     play("hit");
     const size = rnd(5, 10);
-    const pos = vec(rnd(20, 99), -size);
+    const pos = vec(rnd(20, isFirstObstacle ? 60 : 99), -size);
     obstacles.push({ pos, size, vx: 0 });
     nextObstacleTicks = rnd(75, 250);
+    isFirstObstacle = false;
   }
 
   remove(obstacles, (o) => {

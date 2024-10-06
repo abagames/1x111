@@ -54,7 +54,7 @@ export const gameList: { title: string; targetScore: number }[] = [
   { title: "LEVITATION", targetScore: 20 },
   { title: "G PRESS", targetScore: 70 },
   { title: "SQUARE BAR", targetScore: 5 },
-  { title: "TURBULENT", targetScore: 100 },
+  { title: "TURBULENT", targetScore: 80 },
   { title: "CATE P", targetScore: 5 },
   { title: "GEOCENT", targetScore: 1 },
   { title: "HEXMIN", targetScore: 25 },
