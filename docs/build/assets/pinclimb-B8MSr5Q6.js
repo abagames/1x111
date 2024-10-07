@@ -1,3 +1,0 @@
-const d="PIN CLIMB",o=`
-[Hold] Stretch
-`,p=[],r={isPlayingBgm:!0,isReplayEnabled:!0,audioSeed:4};let e,l,t;const c=7;function a(){ticks||(l=[vec(50,0)],t=10,e={angle:0,length:c,pin:l[0]});let s=difficulty*.02;e.pin.y<80&&(s+=(80-e.pin.y)*.1),input.isJustPressed&&play("select"),input.isPressed?e.length+=difficulty:e.length+=(c-e.length)*.1,e.angle+=difficulty*.05,line(e.pin,vec(e.pin).addWithAngle(e.angle,e.length)),e.pin.y>98&&(play("explosion"),end());let i;for(remove(l,n=>(n.y+=s,box(n,3).isColliding.rect.black&&n!==e.pin&&(i=n),n.y>102)),i!=null&&(play("powerUp"),addScore(ceil(e.pin.distanceTo(i)),i),e.pin=i,e.length=c),t-=s;t<0;)l.push(vec(rnd(10,90),-2-t)),t+=rnd(5,15)}export{p as characters,o as description,r as options,d as title,a as update};

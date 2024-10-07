@@ -1,4 +1,0 @@
-const a="FALL BOUNCE",d=`
-[Hold]
- Fall & Bounce
-`,r=[],c={isPlayingBgm:!0,isReplayEnabled:!0,seed:1};let i,t,o;const s=15;function p(){if(!ticks){i=[];for(let e=0;e<2;e++)l();t={pos:vec(50,10),vx:1,width:10,targetY:void 0},o=0}if(t.targetY!=null)t.pos.y+=(t.targetY-t.pos.y)*.2,abs(t.targetY-t.pos.y)<1&&(t.targetY=void 0);else{const e=input.isPressed?difficulty*1.5:difficulty*.25;t.pos.y+=e}if(t.pos.x=wrap(t.pos.x+t.vx,0,100),color(input.isPressed?"cyan":"light_black"),box(t.pos,t.width,3),t.pos.y>103&&(play("hit"),end()),o--,o<0){for(let e=0;e<2;e++)l();o=ceil(rnd(40,60)/difficulty)}i.forEach(e=>{e.pos.y+=difficulty*1,color("blue"),box(e.pos,e.width,5).isColliding.rect.cyan&&t.targetY==null&&(play("powerUp"),addScore(t.pos.y-10,e.pos),t.targetY=10)}),i=i.filter(e=>e.pos.y<103)}function l(){i.push({pos:vec(rnd(100-s),-5),width:rnd(s,35)})}export{r as characters,d as description,c as options,a as title,p as update};

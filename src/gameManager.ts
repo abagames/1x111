@@ -492,9 +492,11 @@ yy  yy
 let starChar: string;
 
 async function loadGames() {
-  const importedGames = import.meta.glob<CglGame>("./games/*.js");
-  for (const path in importedGames) {
-    const game = await importedGames[path]();
+  const gameModules = import.meta.glob("./games/*.js");
+  for (const path in gameModules) {
+    const gameModule = await gameModules[path]();
+    const game = (gameModule as any).default || gameModule;
+
     game.options.theme =
       game.options.theme === "dark" ||
       game.options.theme === "crt" ||

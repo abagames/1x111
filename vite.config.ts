@@ -10,5 +10,16 @@ export default defineConfig({
     },
   },
   base: "./",
-  build: { outDir: `./docs/build/` },
+  build: {
+    outDir: `./docs/build/`,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("src/games/")) {
+            return "games";
+          }
+        },
+      },
+    },
+  },
 });
