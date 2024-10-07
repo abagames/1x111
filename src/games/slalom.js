@@ -78,14 +78,15 @@ export function update() {
     minDist = 99;
   }
   color("black");
+  const mr = ticks < 60 ? ticks / 60 : 1;
   if (input.isPressed) {
-    angle += (targetWall || { side: 0 }).side * 0.07 * difficulty;
+    angle += (targetWall || { side: 0 }).side * 0.07 * difficulty * mr;
     particle(pos, 1, vel.length, angle + PI, 0.2);
   }
-  vel.mul(1 - 0.02 / difficulty).add(vec(0.03).rotate(angle));
-  if (ticks < 60) {
-    vel.mul(ticks / 60);
-  }
+  vel
+    .mul(1 - 0.02 / difficulty)
+    .add(vec(0.03).rotate(angle))
+    .mul(mr);
   pos.add(vel);
   scrolling = 0;
   if (pos.y < 88) {
