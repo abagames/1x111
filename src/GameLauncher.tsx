@@ -20,7 +20,6 @@ const emptyGameSpec: GameSpec = {
   state: "closed",
   targetScore: 0,
 };
-let cancelCount = 0;
 
 const GameLauncher = () => {
   const [gameSpecs, setGameSpecs] = useState(initialGameSpecs);
@@ -38,8 +37,7 @@ const GameLauncher = () => {
     height: 0,
   });
   const gameContainerRef = useRef<HTMLDivElement>(null);
-
-  const currentGameMode = gameModes[gameModeIndex];
+  const cancelCount = useRef(0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -75,7 +73,7 @@ const GameLauncher = () => {
     };
     if (
       !isPlaying &&
-      (selectedGame.id === emptyGameSpec.id || selectedGame.state !== "closed")
+      (selectedGame.id === emptyGameSpec.id || selectedGame.state === "open")
     ) {
       addEventListener("keydown", startGame);
     }
@@ -105,7 +103,7 @@ const GameLauncher = () => {
 
   useEffect(() => {
     if (isPlaying) {
-      cancelCount = 0;
+      cancelCount.current = 0;
       gameManager.start(
         gameModeIndex,
         selectedGame,
@@ -160,7 +158,7 @@ const GameLauncher = () => {
   }, [gameSpecs, checkAllGamesBanned]);
 
   const handleGameSelect = useCallback((game) => {
-    cancelCount = 0;
+    cancelCount.current = 0;
     setSelectedGame((prevSelectedGame) =>
       prevSelectedGame.id === game.id ? emptyGameSpec : game
     );
@@ -254,7 +252,7 @@ const GameLauncher = () => {
   };
 
   const confirmReset = useCallback(() => {
-    cancelCount = 0;
+    cancelCount.current = 0;
     initGameState();
     setGameSpecs(initialGameSpecs);
     setSelectedGame(emptyGameSpec);
@@ -267,14 +265,14 @@ const GameLauncher = () => {
 
   const cancelReset = useCallback(() => {
     setIsResetting(false);
-    cancelCount++;
-    if (cancelCount === 5) {
+    cancelCount.current++;
+    if (cancelCount.current === 5) {
       setGameSpecs((prevSpecs) =>
         prevSpecs.map((g) =>
           g.state === "closed" ? { ...g, state: "open" as const } : g
         )
       );
-      setUnlockedGameCount((prevCount) => gameSpecs.length);
+      setUnlockedGameCount(gameSpecs.length);
     }
   }, [gameSpecs.length]);
 
@@ -324,7 +322,7 @@ const GameLauncher = () => {
             &lt;
           </Button>
           <span className="text-sm font-medium w-20 text-center text-white">
-            {currentGameMode}
+            {gameModes[gameModeIndex]}
           </span>
           <Button
             onClick={() => changeGameMode("next")}
@@ -349,7 +347,10 @@ const GameLauncher = () => {
               onClick={startPlaying}
               size="sm"
               className="mr-2"
-              disabled={selectedGame.state === "closed"}
+              disabled={
+                selectedGame.state === "closed" ||
+                selectedGame.state === "banned"
+              }
             >
               Play
             </Button>
